@@ -1,0 +1,33 @@
+import os
+import requests
+from dotenv import load_dotenv
+
+# Load env variables
+load_dotenv()
+
+ACCESS_TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN")
+PAGE_ID = os.getenv("FACEBOOK_PAGE_ID")   # e.g., "123456789012345"
+
+def post_to_facebook(message: str):
+    """
+    Post a text update to a Facebook Page using Graph API.
+    """
+    url = f"https://graph.facebook.com/{PAGE_ID}/feed"
+    params = {
+        "message": message,
+        "access_token": ACCESS_TOKEN
+    }
+
+    try:
+        resp = requests.post(url, params=params)
+        resp.raise_for_status()
+        result = resp.json()
+        print(f"✅ Successfully posted! Post ID: {result['id']}")
+        return True
+    except Exception as e:
+        print(f"❌ Error posting to Facebook: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    post_to_facebook("Hello Facebook! 🚀 This is a test post from Python.")
