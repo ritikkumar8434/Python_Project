@@ -1,0 +1,33 @@
+import os
+import tweepy
+from dotenv import load_dotenv
+
+# Load credentials from .env file
+load_dotenv()
+
+API_KEY = os.getenv("TWITTER_API_KEY")
+API_KEY_SECRET = os.getenv("TWITTER_API_KEY_SECRET")
+ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN")
+ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET")
+
+def post_tweet(message: str):
+    try:
+        # Authenticate with Twitter
+        auth = tweepy.OAuth1UserHandler(
+            API_KEY, API_KEY_SECRET,
+            ACCESS_TOKEN, ACCESS_TOKEN_SECRET
+        )
+        api = tweepy.API(auth)
+
+        # Post the tweet
+        tweet = api.update_status(status=message)
+        print(f"✅ Tweet posted successfully! ID: {tweet.id}")
+        return True
+    except Exception as e:
+        print(f"❌ Error posting tweet: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    msg = "Hello Twitter! 🚀 This is a test tweet from Python."
+    post_tweet(msg)
