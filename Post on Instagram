@@ -1,0 +1,49 @@
+import os
+import requests
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+ACCESS_TOKEN = os.getenv("IG_ACCESS_TOKEN")      # Long-lived Page Access Token
+INSTAGRAM_BUSINESS_ID = os.getenv("IG_BUSINESS_ID")  # Instagram Business Account ID
+
+def post_to_instagram(image_url: str, caption: str):
+    """
+    Publish a photo to Instagram Business Account using Graph API.
+    :param image_url: Publicly accessible image URL
+    :param caption: Caption text for the post
+    """
+    try:
+        # Step 1: Create a media object
+        media_url = f"https://graph.facebook.com/v20.0/{INSTAGRAM_BUSINESS_ID}/media"
+        media_params = {
+            "image_url": image_url,
+            "caption": caption,
+            "access_token": ACCESS_TOKEN
+        }
+        media_resp = requests.post(media_url, data=media_params)
+        media_resp.raise_for_status()
+        media_id = media_resp.json().get("id")
+        print(f"✅ Media object created: {media_id}")
+
+        # Step 2: Publish the media object
+        publish_url = f"https://graph.facebook.com/v20.0/{INSTAGRAM_BUSINESS_ID}/media_publish"
+        publish_params = {
+            "creation_id": media_id,
+            "access_token": ACCESS_TOKEN
+        }
+        publish_resp = requests.post(publish_url, data=publish_params)
+        publish_resp.raise_for_status()
+        print(f"🎉 Post published successfully! Response: {publish_resp.json()}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error posting to Instagram: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    IMAGE_URL = "https://www.w3schools.com/w3images/lights.jpg"  # Must be public URL
+    CAPTION = "Hello Instagram! 🚀 This is a test post from Python."
+    post_to_instagram(IMAGE_URL, CAPTION)
